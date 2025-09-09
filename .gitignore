@@ -1,0 +1,21 @@
+# Ignore Unity generated folders inside HW1-Selection
+/HW1-Selection/Library/
+/HW1-Selection/Temp/
+/HW1-Selection/Obj/
+/HW1-Selection/Builds/
+/HW1-Selection/Logs/
+
+# Ignore crash reports, auto-generated files
+/HW1-Selection/MemoryCaptures/
+/HW1-Selection/*.csproj
+/HW1-Selection/*.unityproj
+/HW1-Selection/*.sln
+/HW1-Selection/*.userprefs
+/HW1-Selection/*.pidb
+/HW1-Selection/*.booproj
+/HW1-Selection/*.svd
+/HW1-Selection/*.pdb
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+/Users/xiao/Documents/GitHub/05499-Interactive-XR/HW1-Selection/.utmp/RelWithDebInfo/175s2b70/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/xiao/Documents/GitHub/05499-Interactive-XR/HW1-Selection/.utmp/RelWithDebInfo/175s2b70/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/xiao/Documents/GitHub/05499-Interactive-XR/HW1-Selection/.utmp/RelWithDebInfo/175s2b70/arm64-v8a/GameActivity/CMakeFiles/game.dir
+/Users/xiao/Documents/GitHub/05499-Interactive-XR/HW1-Selection/.utmp/RelWithDebInfo/175s2b70/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+/Users/xiao/Documents/GitHub/05499-Interactive-XR/HW1-Selection/.utmp/RelWithDebInfo/175s2b70/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir
