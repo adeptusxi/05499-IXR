@@ -1,20 +1,20 @@
-# Ignore Unity generated folders inside HW1-Selection
-/HW1-Selection/Library/
-/HW1-Selection/Temp/
-/HW1-Selection/Obj/
-/HW1-Selection/Builds/
-/HW1-Selection/Logs/
+# Ignore Unity generated folders inside HW2-Selection
+/HW2-Selection/Library/
+/HW2-Selection/Temp/
+/HW2-Selection/Obj/
+/HW2-Selection/Builds/
+/HW2-Selection/Logs/
 
 # Ignore crash reports, auto-generated files
-/HW1-Selection/MemoryCaptures/
-/HW1-Selection/*.csproj
-/HW1-Selection/*.unityproj
-/HW1-Selection/*.sln
-/HW1-Selection/*.userprefs
-/HW1-Selection/*.pidb
-/HW1-Selection/*.booproj
-/HW1-Selection/*.svd
-/HW1-Selection/*.pdb
+/HW2-Selection/MemoryCaptures/
+/HW2-Selection/*.csproj
+/HW2-Selection/*.unityproj
+/HW2-Selection/*.sln
+/HW2-Selection/*.userprefs
+/HW2-Selection/*.pidb
+/HW2-Selection/*.booproj
+/HW2-Selection/*.svd
+/HW2-Selection/*.pdb
 
 # OS generated files
 .DS_Store
