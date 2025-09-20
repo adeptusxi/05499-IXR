@@ -1,0 +1,190 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.XR;
+
+// implements simple raycast selection 
+public class RaycastSelect : MonoBehaviour
+{
+    [SerializeField] protected SelectionEvaluator selectionEvaluator;
+    [SerializeField] private GameObject evaluationUI;
+    
+    [Header("Controls")]
+    [SerializeField] private InputActionReference triggerPress;
+    [SerializeField] private Transform rayOriginObject; // for non-controller raycast (e.g. from head), use this 
+    [SerializeField] private OVRControllerHelper rightController;
+    [SerializeField] private OVRControllerHelper leftController;
+    [SerializeField] private RaycastType raycastOrigin;
+    
+    [Header("Haptics")]
+    [SerializeField] private float hapticsAmplitude = 0.3f;
+
+    [SerializeField] private float hapticsDuration = 0.025f;
+    
+    [Header("Ray")]
+    [SerializeField] private bool showRay = true;
+    [SerializeField] private LineRenderer rayRenderer;
+    [SerializeField] private float maxRayDistance = 100;
+
+    private Transform selected;         // currently selected sphere. null if current raycast is no-hit
+    private Transform lastHitSphere;    // sphere last hit by raycast. null if last raycast was a no-hit 
+    private Color originalColor;        // original color of currently selected sphere 
+
+    private enum RaycastType
+    {
+        LeftController, 
+        RightController, 
+        Custom
+    }
+    
+    protected virtual void Awake()
+    {
+        triggerPress.action.performed += ConfirmSelection;
+        
+        rayRenderer.positionCount = 2;
+        rayRenderer.startWidth = 0.004f;
+        rayRenderer.endWidth = 0.004f;
+    }
+
+    protected void Update()
+    {
+        if (!evaluationUI.activeSelf) // don't raycast if trial hasn't started 
+            Raycast();
+    }
+
+    protected void OnDestroy()
+    {
+        triggerPress.action.performed -= ConfirmSelection;
+    }
+
+    private void Raycast()
+    {
+        Transform rayOrigin;
+        switch (raycastOrigin)
+        {
+            case RaycastType.LeftController:
+                rayOrigin = leftController.GetPointerRayTransform();
+                break;
+            case RaycastType.RightController:
+                rayOrigin = rightController.GetPointerRayTransform();
+                break;
+            default:
+                rayOrigin = rayOriginObject;
+                break;
+        }
+
+        Ray ray = new Ray(rayOrigin.position, rayOrigin.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, maxRayDistance))
+        {
+            // ray hit something in scene 
+            
+            if (showRay)
+            {
+                rayRenderer.SetPosition(0, rayOrigin.position);
+                rayRenderer.SetPosition(1, hit.point);
+            }
+
+            ResetSelected(); // clear previous selection 
+            
+            var sphere = hit.transform;
+            if (sphere != null && selectionEvaluator.GetSpheres().Contains(sphere))
+            {
+                // ray hit a sphere 
+                SetSelected(sphere);
+
+                OnRaycastHit(ray, sphere);
+                if (selected != sphere)
+                {
+                    selected = sphere;
+                    OnRaycastDifferentHit(ray, sphere);
+                }
+                else
+                {
+                    OnRaycastNewHit(ray, sphere);
+                }
+            }
+            else
+            {
+                OnRaycastMiss(ray);
+            }
+        }
+        else
+        {
+            if (showRay)
+            {
+                rayRenderer.SetPosition(0, rayOrigin.position);
+                rayRenderer.SetPosition(1, rayOrigin.position + rayOrigin.forward * maxRayDistance);
+            }
+
+            ResetSelected();
+            lastHitSphere = null;
+
+            OnRaycastMiss(ray);
+        }
+    }
+
+    // if applicable, does controller haptics 
+    // does not do anything if in UI, not using controller raycast, or the hit is the same as previous hit 
+    protected void DoHaptics(Transform sphereHit)
+    {
+        if ((raycastOrigin == RaycastType.RightController || raycastOrigin == RaycastType.LeftController)
+            && lastHitSphere != null && lastHitSphere != sphereHit && !evaluationUI.activeSelf)
+        {
+            if (raycastOrigin == RaycastType.RightController)
+            {
+                HapticsManager.SendHaptics(XRNode.RightHand, hapticsAmplitude, hapticsDuration);
+            }
+            if (raycastOrigin == RaycastType.LeftController)
+            {
+                HapticsManager.SendHaptics(XRNode.LeftHand, hapticsAmplitude, hapticsDuration);
+            }
+        }
+    }
+
+    protected void SetSelected(Transform sphere)
+    {
+        DoHaptics(sphere);
+        originalColor = sphere.GetComponent<Renderer>().material.color;
+        sphere.GetComponent<Renderer>().material.color = Color.magenta;
+        selectionEvaluator.SetSelection(sphere);
+        selected = sphere;
+        lastHitSphere = sphere;
+    }
+    
+    protected void ResetSelected()
+    {
+        if (selected != null)
+        {
+            selected.GetComponent<Renderer>().material.color = originalColor;
+            selected = null;
+        }
+    }
+    
+    private void ConfirmSelection(InputAction.CallbackContext context)
+    {
+        if (!selected) {
+            return;
+        }
+        selected.GetComponent<Renderer>().material.color = originalColor;
+        selected = null;
+        selectionEvaluator.ConfirmSelection();
+    }
+    
+    #region callbacks 
+    
+    // called when ray hits a sphere 
+    protected virtual void OnRaycastHit(Ray ray, Transform sphere) {} 
+    
+    // called when ray hits sphere after a no-hit 
+    // note OnRaycastHit() is also called 
+    protected virtual void OnRaycastNewHit(Ray ray, Transform sphere) {}
+    
+    // called when ray hits a different sphere after another hit 
+    // note OnRaycastHit() is also called 
+    protected virtual void OnRaycastDifferentHit(Ray ray, Transform sphere) {}
+    
+    // called when ray does not hit a sphere 
+    protected virtual void OnRaycastMiss(Ray ray) {} 
+    
+    #endregion callbacks 
+}
