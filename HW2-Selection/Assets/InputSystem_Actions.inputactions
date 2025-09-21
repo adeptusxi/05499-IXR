@@ -1012,6 +1012,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Left Joystick",
+                    "type": "Value",
+                    "id": "6bc3614a-0ad8-4ded-a34d-c720bb066384",
+                    "expectedControlType": "Stick",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Right Joystick",
+                    "type": "Value",
+                    "id": "c3fc1580-4a2b-4747-91ef-9559067e50bf",
+                    "expectedControlType": "Stick",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Button Press",
+                    "type": "Button",
+                    "id": "7a951cb6-3e59-4c85-8aab-ba642db94316",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1034,6 +1061,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Grip Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "afae01f6-73b1-4031-9bf2-0ce36bb5404c",
+                    "path": "<XRController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";XR;Joystick",
+                    "action": "Left Joystick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2410c6e0-ad9a-4b17-96c4-a640db6843e5",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";XR;Joystick",
+                    "action": "Right Joystick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1c0372b5-9b6b-4536-b5f6-dd92e832b8cc",
+                    "path": "<XRController>/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Button Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "700a4e70-e8f2-4161-be79-fd0c711d416e",
+                    "path": "<XRController>/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Button Press",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

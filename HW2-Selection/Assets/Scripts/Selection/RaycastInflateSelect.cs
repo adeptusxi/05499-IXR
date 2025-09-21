@@ -7,7 +7,6 @@ using UnityEngine.XR;
 public class RaycastInflateSelect : RaycastSelect
 {
     [Header("Inflation")]
-    [SerializeField] private Camera cam;
     [SerializeField] private float inflateScale = 1.5f; 
     
     private Transform inflatedSphere;   // reference to currently inflated sphere so we can reset its size 
@@ -15,18 +14,18 @@ public class RaycastInflateSelect : RaycastSelect
 
     protected override void OnRaycastHit(Ray ray, Transform sphere)
     {
-        if (inflatedSphere != sphere)
-            InflateSphere(ray, sphere);
+        InflateSphereDynamic(sphere, ray);
     } 
     
     protected override void OnRaycastMiss(Ray ray)
     {
         // if no sphere is hit, inflate the one closest to being hit 
-        //var nearestSphere = GetNearestSphereToRay(ray);
         var nearestSphere = GetNearestSphereCenterToRay(ray);
-        if (inflatedSphere != nearestSphere)
-            InflateSphere(ray, nearestSphere);
-        SetSelected(nearestSphere);
+        if (nearestSphere != null)
+        {
+            InflateSphereDynamic(nearestSphere, ray);
+            SetSelected(nearestSphere);
+        }
     }
 
     protected override void OnRaycastDifferentHit(Ray ray, Transform sphere)
@@ -81,16 +80,15 @@ public class RaycastInflateSelect : RaycastSelect
 
         return nearest;
     }
-
-    private void InflateSphere(Ray ray, Transform sphere)
-    {
-        InflateSphereStatic(sphere);
-    }
-
+    
     private void ResetInflatedSphere()
     {
         if (inflatedSphere != null)
+        {
             inflatedSphere.localScale = originalScale;
+            originalScale = Vector3.zero;
+            inflatedSphere = null;
+        }
     }
 
     // inflates sphere by constant inflateScale 
@@ -106,4 +104,39 @@ public class RaycastInflateSelect : RaycastSelect
             sphere.localScale = originalScale * inflateScale;
         }
     }
+    
+    // inflates sphere to be just hit by ray 
+    private void InflateSphereDynamic(Transform sphere, Ray ray)
+    {
+        // if inflating a new sphere, reset the old one 
+        if (inflatedSphere != sphere)
+            ResetInflatedSphere();
+
+        // if we haven't already, store the original scale 
+        if (inflatedSphere != sphere || originalScale == Vector3.zero)
+            originalScale = sphere.localScale;
+
+        float originalRadius = originalScale.x * 0.5f;
+
+        // calculate closest point to ray (from viewer POV, not actually) 
+        Vector3 toSphere = sphere.position - ray.origin;
+        float proj = Vector3.Dot(toSphere, ray.direction.normalized);
+        Vector3 closestPoint = ray.origin + proj * ray.direction.normalized;
+        float dist = Vector3.Distance(closestPoint, sphere.position);
+
+        // inflate sphere so it's just big enough for ray to hit 
+        if (dist <= originalRadius)
+        {
+            sphere.localScale = originalScale;
+        }
+        else
+        {
+            float inflateFactor = dist / originalRadius; 
+            inflateFactor = Mathf.Min(inflateFactor, 5f/originalScale.x); // don't get too huge 
+            sphere.localScale = originalScale * inflateFactor;
+        }
+        
+        inflatedSphere = sphere;
+    }
+
 }

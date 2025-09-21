@@ -1,16 +1,18 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR;
+using UnityEngine.UI;
 
 // implements simple raycast selection 
 public class RaycastSelect : MonoBehaviour
 {
     [SerializeField] protected SelectionEvaluator selectionEvaluator;
     [SerializeField] private GameObject evaluationUI;
+    [SerializeField] protected Camera cam;
     
     [Header("Controls")]
     [SerializeField] private InputActionReference triggerPress;
+    [SerializeField] private InputActionReference buttonPress;
     [SerializeField] private Transform rayOriginObject; // for non-controller raycast (e.g. from head), use this 
     [SerializeField] private OVRControllerHelper rightController;
     [SerializeField] private OVRControllerHelper leftController;
@@ -18,13 +20,14 @@ public class RaycastSelect : MonoBehaviour
     
     [Header("Haptics")]
     [SerializeField] private float hapticsAmplitude = 0.3f;
-
     [SerializeField] private float hapticsDuration = 0.025f;
     
-    [Header("Ray")]
+    [Header("Display")]
     [SerializeField] private bool showRay = true;
     [SerializeField] private LineRenderer rayRenderer;
     [SerializeField] private float maxRayDistance = 100;
+    [SerializeField] private bool showCursor = false;
+    [SerializeField] private Image cursor;
 
     private Transform selected;         // currently selected sphere. null if current raycast is no-hit
     private Transform lastHitSphere;    // sphere last hit by raycast. null if last raycast was a no-hit 
@@ -40,10 +43,17 @@ public class RaycastSelect : MonoBehaviour
     protected virtual void Awake()
     {
         triggerPress.action.performed += ConfirmSelection;
+        buttonPress.action.performed += ConfirmSelection;
         
         rayRenderer.positionCount = 2;
         rayRenderer.startWidth = 0.004f;
         rayRenderer.endWidth = 0.004f;
+    }
+
+    protected virtual void Start()
+    {
+        if (!showCursor && cursor != null)
+            cursor.enabled = false;
     }
 
     protected void Update()
@@ -55,6 +65,7 @@ public class RaycastSelect : MonoBehaviour
     protected void OnDestroy()
     {
         triggerPress.action.performed -= ConfirmSelection;
+        buttonPress.action.performed -= ConfirmSelection;
     }
 
     private void Raycast()
