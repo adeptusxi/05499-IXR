@@ -9,26 +9,27 @@ public class RaycastInflateSelect : RaycastSelect
     [Header("Inflation")]
     [SerializeField] private float inflateScale = 1.5f; 
     
-    private Transform inflatedSphere;   // reference to currently inflated sphere so we can reset its size 
-    private Vector3 originalScale;      // original size of currently inflated sphere 
+    protected Transform inflatedSphere;   // reference to currently inflated sphere so we can reset its size 
+    protected Vector3 originalScale;      // original size of currently inflated sphere 
 
-    protected override void OnRaycastHit(Ray ray, Transform sphere)
+    protected override void OnRaycastHitSphere(RaycastHit hit, Ray ray, Transform sphere)
     {
-        InflateSphereDynamic(sphere, ray);
+        if (inflatedSphere != sphere)
+            InflateSphere(sphere, ray);
     } 
     
-    protected override void OnRaycastMiss(Ray ray)
+    protected override void OnRaycastMissSphere(Ray ray)
     {
         // if no sphere is hit, inflate the one closest to being hit 
         var nearestSphere = GetNearestSphereCenterToRay(ray);
         if (nearestSphere != null)
         {
-            InflateSphereDynamic(nearestSphere, ray);
+            InflateSphere(nearestSphere, ray);
             SetSelected(nearestSphere);
         }
     }
 
-    protected override void OnRaycastDifferentHit(Ray ray, Transform sphere)
+    protected override void OnRaycastHitDifferentSphere(RaycastHit hit, Ray ray, Transform sphere)
     {
         ResetInflatedSphere();
     }
@@ -81,7 +82,7 @@ public class RaycastInflateSelect : RaycastSelect
         return nearest;
     }
     
-    private void ResetInflatedSphere()
+    protected void ResetInflatedSphere()
     {
         if (inflatedSphere != null)
         {
@@ -92,7 +93,7 @@ public class RaycastInflateSelect : RaycastSelect
     }
 
     // inflates sphere by constant inflateScale 
-    private void InflateSphereStatic(Transform sphere)
+    protected virtual void InflateSphere(Transform sphere, Ray ray)
     {
         ResetInflatedSphere();
 
@@ -104,39 +105,4 @@ public class RaycastInflateSelect : RaycastSelect
             sphere.localScale = originalScale * inflateScale;
         }
     }
-    
-    // inflates sphere to be just hit by ray 
-    private void InflateSphereDynamic(Transform sphere, Ray ray)
-    {
-        // if inflating a new sphere, reset the old one 
-        if (inflatedSphere != sphere)
-            ResetInflatedSphere();
-
-        // if we haven't already, store the original scale 
-        if (inflatedSphere != sphere || originalScale == Vector3.zero)
-            originalScale = sphere.localScale;
-
-        float originalRadius = originalScale.x * 0.5f;
-
-        // calculate closest point to ray (from viewer POV, not actually) 
-        Vector3 toSphere = sphere.position - ray.origin;
-        float proj = Vector3.Dot(toSphere, ray.direction.normalized);
-        Vector3 closestPoint = ray.origin + proj * ray.direction.normalized;
-        float dist = Vector3.Distance(closestPoint, sphere.position);
-
-        // inflate sphere so it's just big enough for ray to hit 
-        if (dist <= originalRadius)
-        {
-            sphere.localScale = originalScale;
-        }
-        else
-        {
-            float inflateFactor = dist / originalRadius; 
-            inflateFactor = Mathf.Min(inflateFactor, 5f/originalScale.x); // don't get too huge 
-            sphere.localScale = originalScale * inflateFactor;
-        }
-        
-        inflatedSphere = sphere;
-    }
-
 }

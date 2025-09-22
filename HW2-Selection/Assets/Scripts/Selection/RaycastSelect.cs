@@ -19,15 +19,15 @@ public class RaycastSelect : MonoBehaviour
     [SerializeField] private RaycastType raycastOrigin;
     
     [Header("Haptics")]
-    [SerializeField] private float hapticsAmplitude = 0.3f;
-    [SerializeField] private float hapticsDuration = 0.025f;
+    [SerializeField] private float hapticsAmplitude = 0.17f;
+    [SerializeField] private float hapticsDuration = 0.023f;
     
     [Header("Display")]
     [SerializeField] private bool showRay = true;
     [SerializeField] private LineRenderer rayRenderer;
     [SerializeField] private float maxRayDistance = 100;
     [SerializeField] private bool showCursor = false;
-    [SerializeField] private Image cursor;
+    [SerializeField] private Image headCursor; // object on screen-space camera canvas, fixed to center of user's vision
 
     private Transform selected;         // currently selected sphere. null if current raycast is no-hit
     private Transform lastHitSphere;    // sphere last hit by raycast. null if last raycast was a no-hit 
@@ -52,8 +52,11 @@ public class RaycastSelect : MonoBehaviour
 
     protected virtual void Start()
     {
-        if (!showCursor && cursor != null)
-            cursor.enabled = false;
+        if (!showCursor && headCursor != null)
+            headCursor.enabled = false;
+        
+        if (!showRay && rayRenderer != null) 
+            rayRenderer.enabled = false;
     }
 
     protected void Update()
@@ -84,10 +87,11 @@ public class RaycastSelect : MonoBehaviour
                 break;
         }
 
-        Ray ray = new Ray(rayOrigin.position, rayOrigin.forward);
+        Ray ray = GetRay(rayOrigin);
         if (Physics.Raycast(ray, out RaycastHit hit, maxRayDistance))
         {
             // ray hit something in scene 
+            OnRaycastHit(hit, ray);
             
             if (showRay)
             {
@@ -103,20 +107,20 @@ public class RaycastSelect : MonoBehaviour
                 // ray hit a sphere 
                 SetSelected(sphere);
 
-                OnRaycastHit(ray, sphere);
+                OnRaycastHitSphere(hit, ray, sphere);
                 if (selected != sphere)
                 {
                     selected = sphere;
-                    OnRaycastDifferentHit(ray, sphere);
+                    OnRaycastHitDifferentSphere(hit, ray, sphere);
                 }
                 else
                 {
-                    OnRaycastNewHit(ray, sphere);
+                    OnRaycastHitNewSphere(hit, ray, sphere);
                 }
             }
             else
             {
-                OnRaycastMiss(ray);
+                OnRaycastMissSphere(ray);
             }
         }
         else
@@ -131,7 +135,13 @@ public class RaycastSelect : MonoBehaviour
             lastHitSphere = null;
 
             OnRaycastMiss(ray);
+            OnRaycastMissSphere(ray);
         }
+    }
+
+    protected virtual Ray GetRay(Transform rayOrigin)
+    {
+        return new Ray(rayOrigin.position, rayOrigin.forward);
     }
 
     // if applicable, does controller haptics 
@@ -183,19 +193,25 @@ public class RaycastSelect : MonoBehaviour
     
     #region callbacks 
     
+    // called when ray hits anything in scene 
+    protected virtual void OnRaycastHit(RaycastHit hit, Ray ray) {}
+    
     // called when ray hits a sphere 
-    protected virtual void OnRaycastHit(Ray ray, Transform sphere) {} 
+    protected virtual void OnRaycastHitSphere(RaycastHit hit, Ray ray, Transform sphere) {} 
     
-    // called when ray hits sphere after a no-hit 
-    // note OnRaycastHit() is also called 
-    protected virtual void OnRaycastNewHit(Ray ray, Transform sphere) {}
+    // called when ray hits sphere after a no-sphere-hit 
+    // note OnRaycastHit() and OnRaycastHitSphere() are also called 
+    protected virtual void OnRaycastHitNewSphere(RaycastHit hit, Ray ray, Transform sphere) {}
     
-    // called when ray hits a different sphere after another hit 
-    // note OnRaycastHit() is also called 
-    protected virtual void OnRaycastDifferentHit(Ray ray, Transform sphere) {}
+    // called when ray hits a sphere after a different sphere hit 
+    // note OnRaycastHit() and OnRaycastHitSphere() are also called 
+    protected virtual void OnRaycastHitDifferentSphere(RaycastHit hit, Ray ray, Transform sphere) {}
     
     // called when ray does not hit a sphere 
-    protected virtual void OnRaycastMiss(Ray ray) {} 
+    protected virtual void OnRaycastMissSphere(Ray ray) {} 
+    
+    // called when ray does not hit anything in scene 
+    protected virtual void OnRaycastMiss(Ray ray) {}
     
     #endregion callbacks 
 }
