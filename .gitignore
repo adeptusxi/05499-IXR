@@ -5,6 +5,12 @@
 /HW2-Selection/Builds/
 /HW2-Selection/Logs/
 
+/HW3-Manipulation/Library/
+/HW3-Manipulationn/Temp/
+/HW3-Manipulation/Obj/
+/HW3-Manipulation/Builds/
+/HW3-Manipulation/Logs/
+
 # Ignore crash reports, auto-generated files
 /HW2-Selection/MemoryCaptures/
 /HW2-Selection/*.csproj
