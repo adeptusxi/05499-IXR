@@ -1039,6 +1039,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Joystick Axis Left",
+                    "type": "Value",
+                    "id": "496120b0-0e58-4d7e-b8eb-aab37869f7f3",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Joystick Axis Right",
+                    "type": "Value",
+                    "id": "0ff84132-963e-4275-9d4f-d294bd168c8c",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -1094,6 +1112,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Joystick Axis",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "01dfe6eb-5152-43fa-9bb6-c5c66e24d5a6",
+                    "path": "<XRController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Joystick Axis Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "05e7de55-e272-4289-9b11-ca3d8ed5a465",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Joystick Axis Right",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

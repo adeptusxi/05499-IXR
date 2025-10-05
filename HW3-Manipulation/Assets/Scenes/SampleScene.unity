@@ -2991,7 +2991,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1333921587
 Transform:
   m_ObjectHideFlags: 0
@@ -3029,6 +3029,60 @@ MonoBehaviour:
   moveSpeed: 5
   rotateSpeed: 8
   scaleSpeed: 5
+--- !u!1 &1350533600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1350533603}
+  - component: {fileID: 1350533601}
+  m_Layer: 0
+  m_Name: CameraDirectionJoystickTranslate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1350533601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350533600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a673a8f6f0904091a891098c98c0e2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  evaluator: {fileID: 221057618}
+  cameraTransform: {fileID: 661769602}
+  userRoot: {fileID: 457443877}
+  userScaleMultiplier: 2
+  primaryButtonPress: {fileID: 8486440126230399877, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  secondaryButtonPress: {fileID: 6396319460670917056, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  leftJoystick: {fileID: -2813339169272732157, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  rightJoystick: {fileID: 111085520754050387, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  moveSpeed: 3
+  viewOffset: 2
+--- !u!4 &1350533603
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350533600}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1353926042
 GameObject:
   m_ObjectHideFlags: 0
@@ -3092,9 +3146,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 300685675}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 88, y: -55.199997}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 152, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1389711571
@@ -5731,5 +5785,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1333921587}
+  - {fileID: 1350533603}
   - {fileID: 457443877}
   - {fileID: 942177916}

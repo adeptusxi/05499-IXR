@@ -44,6 +44,8 @@ public class TransformationEvaluator : MonoBehaviour
 
     bool inProgress;
 
+    public event Action onTrialStarted; // added: event that a single trial started (one pair of cubes) 
+
     public Transform GetSourceTransform()
     {
         return sourceGameObject.transform;
@@ -107,6 +109,8 @@ public class TransformationEvaluator : MonoBehaviour
         trialCount = 0;
         timeStart = DateTime.Now;
         inProgress = true;
+        
+        onTrialStarted?.Invoke(); // added: broadcast to transform scripts that a trial began 
     }
 
     public void ConfirmSelection()
@@ -146,6 +150,8 @@ public class TransformationEvaluator : MonoBehaviour
             InitiateSource();
             InitiateTarget();
             timeStart = DateTime.Now;
+            
+            onTrialStarted?.Invoke(); // added: broadcast to transform scripts that a trial began 
         }
     }
 
