@@ -1057,6 +1057,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Grip Press Left",
+                    "type": "Button",
+                    "id": "18b4434a-cc40-4787-aa5d-30df6fef58e9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Grip Press Right",
+                    "type": "Button",
+                    "id": "8b8d8b28-0cb2-46db-8a1a-08bd68a5923f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1134,6 +1152,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Joystick Axis Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c8ce1e85-17ec-474b-9c6e-570db89efe79",
+                    "path": "<XRController>{LeftHand}/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grip Press Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84e74c42-3eb6-435c-b633-6f38abc13f75",
+                    "path": "<XRController>{RightHand}/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grip Press Right",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

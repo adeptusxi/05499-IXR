@@ -1,0 +1,171 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+// grip press grabbing for rotation and scale 
+// assumes confirmScript will handle reparenting in OnConfirmTrigger
+public class ControllerGrabRotateScale : MonoBehaviour
+{
+    [SerializeField] private TransformationEvaluator evaluator;
+    [SerializeField] private ConfirmSelect confirmScript;
+
+    [Header("Input")]
+    [SerializeField] private InputActionReference leftGrip;
+    [SerializeField] private InputActionReference rightGrip;
+    [SerializeField] private Transform leftController;
+    [SerializeField] private Transform rightController;
+    [SerializeField] private float grabDistance = 0.8f; 
+
+    private Transform sourceTransform;
+    private Collider sourceCollider;
+    private Transform initialSourceParent; 
+    
+    private bool leftGrabbing = false;
+    private bool rightGrabbing = false;
+    private bool twoHandMode = false;
+
+    // two-handed grab 
+    private Vector3 initialTwoHandVector; // vector between controllers at grab start
+    private float initialTwoHandDistance; // distance between controllers at grab start 
+    private Vector3 initialScale;
+    private Vector3 scalingAxis; // cube's local axis that grabbed faces are opposites on 
+    private Quaternion initialRotationOffset; // rotation between cube and initialTwoHandVector
+
+    private void Awake()
+    {
+        evaluator.onTrialStarted += GetSourceInfo;
+        confirmScript.OnConfirmTrigger += Reset;
+
+        leftGrip.action.performed += _ => TryGrab(leftController, true);
+        rightGrip.action.performed += _ => TryGrab(rightController, false);
+
+        leftGrip.action.canceled += _ => ReleaseGrab(leftController, true);
+        rightGrip.action.canceled += _ => ReleaseGrab(rightController, false);
+        
+        initialSourceParent = evaluator.GetSourceTransform().parent;
+    }
+    
+    private void Update()
+    {
+        if (twoHandMode)
+        {
+            Vector3 currentVector = leftController.position - rightController.position;
+            float currentDistance = currentVector.magnitude;
+
+            float scaleFactor = Mathf.Abs(currentDistance / initialTwoHandDistance);
+
+            Vector3 newScale = initialScale;
+            if (Mathf.Abs(scalingAxis.x) > 0.5f)
+                newScale.x = initialScale.x * scaleFactor;
+            if (Mathf.Abs(scalingAxis.y) > 0.5f)
+                newScale.y = initialScale.y * scaleFactor;
+            if (Mathf.Abs(scalingAxis.z) > 0.5f)
+                newScale.z = initialScale.z * scaleFactor;
+
+            sourceTransform.localScale = newScale;
+
+            // rotate cube to match rotation of "axis" between controllers 
+            Quaternion rotationDelta = Quaternion.FromToRotation(initialTwoHandVector.normalized, currentVector.normalized);
+            sourceTransform.rotation = rotationDelta * initialRotationOffset;
+        }
+    }
+
+    private void GetSourceInfo()
+    {
+        sourceTransform = evaluator.GetSourceTransform();
+        sourceCollider = sourceTransform.GetComponent<Collider>();
+    }
+
+    // if not already grabbing and cube is close enough, grab it 
+    private void TryGrab(Transform controller, bool isLeft)
+    {
+        if (sourceTransform == null || sourceCollider == null) return;
+        
+        Vector3 closestPoint = sourceCollider.ClosestPoint(controller.position);
+        float distance = Vector3.Distance(controller.position, closestPoint);
+        if (distance > grabDistance) return;
+        
+        if (isLeft && !leftGrabbing)
+            leftGrabbing = true;
+        else if (!isLeft && !rightGrabbing)
+            rightGrabbing = true;
+        
+        if (leftGrabbing ^ rightGrabbing)
+        {
+            // one-handed grab, just regular parenting 
+            sourceTransform.SetParent(controller, true);
+        }
+        else if (leftGrabbing && rightGrabbing)
+        {
+            // potential two-handed grab 
+            // which faces are being grabbed 
+            Vector3 leftDir = sourceTransform.InverseTransformPoint(leftController.position).normalized;
+            Vector3 rightDir = sourceTransform.InverseTransformPoint(rightController.position).normalized;
+
+            int leftAxis = DominantAxis(leftDir);
+            int rightAxis = DominantAxis(rightDir);
+
+            if (leftAxis == rightAxis && !Mathf.Approximately(Mathf.Sign(leftDir[leftAxis]), Mathf.Sign(rightDir[rightAxis])))
+            {
+                // grabbed faces are opposites, enable scaling 
+                twoHandMode = true;
+                sourceTransform.SetParent(initialSourceParent, true);
+
+                scalingAxis = Vector3.zero;
+                scalingAxis[leftAxis] = 1f;
+
+                initialTwoHandVector = leftController.position - rightController.position;
+                initialTwoHandDistance = initialTwoHandVector.magnitude;
+                initialScale = sourceTransform.localScale;
+
+                Vector3 localAxisDir = sourceTransform.TransformDirection(scalingAxis);
+                initialRotationOffset = Quaternion.FromToRotation(localAxisDir, initialTwoHandVector.normalized) * sourceTransform.rotation;
+                
+                // TODO bug - sometimes two-handed grab inverts cube on grabbing axis 
+            }
+            else
+            {
+                // ignore second grab if not opposite sides 
+                if (isLeft)
+                    leftGrabbing = false;
+                else
+                    rightGrabbing = false;
+            }
+        }
+    }
+
+    private void ReleaseGrab(Transform controller, bool isLeft)
+    {
+        if (isLeft) leftGrabbing = false;
+        else rightGrabbing = false;
+
+        // restore parent 
+        if (twoHandMode)
+        {
+            twoHandMode = false;
+            sourceTransform.SetParent(initialSourceParent, true);
+        }
+        else if (!leftGrabbing && !rightGrabbing)
+        {
+            sourceTransform.SetParent(initialSourceParent, true);
+        }
+    }
+
+    private void Reset()
+    {
+        leftGrabbing = false;
+        rightGrabbing = false;
+        twoHandMode = false;
+    }
+    
+    // finds dominant xyz axis of a vector 
+    private int DominantAxis(Vector3 v)
+    {
+        v = v.normalized;
+        float ax = Mathf.Abs(v.x);
+        float ay = Mathf.Abs(v.y);
+        float az = Mathf.Abs(v.z);
+        if (ax > ay && ax > az) return 0;
+        if (ay > az) return 1;
+        return 2;
+    }
+}
