@@ -3,21 +3,38 @@ using UnityEngine.InputSystem;
 
 // grip press grabbing for rotation and scale 
 // assumes confirmScript will handle reparenting in OnConfirmTrigger
-public class ControllerGrabRotateScale : MonoBehaviour
+public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
-    [SerializeField] private ConfirmSelect confirmScript;
+    
+    [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private bool activateOnAwake = false;
+    [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private ConfirmSelect confirmScript;
 
+    [Header("User")]
+    [SerializeField] private Transform userRoot; 
+    [SerializeField] private Transform cameraTransform;
+    
     [Header("Input")]
     [SerializeField] private InputActionReference leftGrip;
     [SerializeField] private InputActionReference rightGrip;
     [SerializeField] private Transform leftController;
     [SerializeField] private Transform rightController;
-    [SerializeField] private float grabDistance = 0.8f; 
+    
+    [Header("Settings")]
+    [SerializeField] private bool moveUserToSource = false; // false if used with another ITransformMode that moves the user
+    [SerializeField] private float userScaleMultiplier = 1f;
+    [SerializeField] private float grabDistance = 0.8f;
+    [SerializeField] private float viewOffset = 0.1f;
 
+    private bool isActivated = false;
+    
     private Transform sourceTransform;
     private Collider sourceCollider;
     private Transform initialSourceParent; 
+    
+    private Vector3 originalUserPosition;
+    private Quaternion originalUserRotation;
+    private Vector3 originalUserScale;
     
     private bool leftGrabbing = false;
     private bool rightGrabbing = false;
@@ -32,20 +49,79 @@ public class ControllerGrabRotateScale : MonoBehaviour
 
     private void Awake()
     {
-        evaluator.onTrialStarted += GetSourceInfo;
-        confirmScript.OnConfirmTrigger += Reset;
+        if (activateOnAwake)
+        {
+            evaluator.onTrialStarted += GetSourceInfo;
+            confirmScript.OnConfirmTrigger += Reset;
 
-        leftGrip.action.performed += _ => TryGrab(leftController, true);
-        rightGrip.action.performed += _ => TryGrab(rightController, false);
+            leftGrip.action.performed += TryGrabLeft;
+            rightGrip.action.performed +=TryGrabRight;
 
-        leftGrip.action.canceled += _ => ReleaseGrab(leftController, true);
-        rightGrip.action.canceled += _ => ReleaseGrab(rightController, false);
+            leftGrip.action.canceled += ReleaseLeft;
+            rightGrip.action.canceled += ReleaseRight;
+
+            ActivateRotateScale();
+        }
+    }
+    
+    public void StartTransformMode()
+    {
+        leftGrip.action.performed += TryGrabLeft;
+        rightGrip.action.performed += TryGrabRight;
+
+        leftGrip.action.canceled += ReleaseLeft;
+        rightGrip.action.canceled += ReleaseRight;
         
-        initialSourceParent = evaluator.GetSourceTransform().parent;
+        ActivateRotateScale();
+    }
+
+    public void StopTransformMode()
+    {
+        leftGrip.action.performed -= TryGrabLeft;
+        rightGrip.action.performed -= TryGrabRight;
+
+        leftGrip.action.canceled -= ReleaseLeft;
+        rightGrip.action.canceled -= ReleaseRight;
+
+        DeactivateRotateScale();
+    }
+
+    private void ActivateRotateScale()
+    {
+        GetSourceInfo();
+
+        if (moveUserToSource)
+        {
+            originalUserPosition = userRoot.position;
+            originalUserRotation = userRoot.rotation;
+            originalUserScale = userRoot.localScale;
+
+            userRoot.localScale *= userScaleMultiplier;
+            Vector3 rootCameraOffset = cameraTransform.localPosition;
+            userRoot.position = sourceTransform.position - Vector3.forward * viewOffset - rootCameraOffset;
+            //userRoot.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            cameraTransform.LookAt(sourceTransform);
+        }
+    }
+
+    private void DeactivateRotateScale()
+    {
+        if (moveUserToSource)
+        {
+            userRoot.position = originalUserPosition;
+            userRoot.rotation = originalUserRotation;
+            userRoot.localScale = originalUserScale;
+        }
+        
+        ReleaseGrab(leftController, true);
+        ReleaseGrab(rightController, false);
+        Reset();
     }
     
     private void Update()
     {
+        if (!isActivated) return;
+        
         if (twoHandMode)
         {
             Vector3 currentVector = leftController.position - rightController.position;
@@ -168,4 +244,28 @@ public class ControllerGrabRotateScale : MonoBehaviour
         if (ay > az) return 1;
         return 2;
     }
-}
+    
+    #region callbacks
+
+    private void TryGrabLeft(InputAction.CallbackContext context)
+    {
+        TryGrab(leftController, true);
+    }
+
+    private void TryGrabRight(InputAction.CallbackContext context)
+    {
+        TryGrab(rightController, false);
+    }
+
+    private void ReleaseLeft(InputAction.CallbackContext context)
+    {
+        ReleaseGrab(leftController, true);
+    }
+
+    private void ReleaseRight(InputAction.CallbackContext context)
+    {
+        ReleaseGrab(rightController, false);
+    }
+    
+    #endregion
+} ;

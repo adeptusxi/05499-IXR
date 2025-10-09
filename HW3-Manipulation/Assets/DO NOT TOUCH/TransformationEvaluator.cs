@@ -197,7 +197,7 @@ public class TransformationEvaluator : MonoBehaviour
         }
         else
         {
-            targetGameObject.GetComponent<Renderer>().material.color = Color.red;
+            targetGameObject.GetComponent<Renderer>().material.color = new Color(1f, 0f, 0f, 0.3f); // changed: slightly less opaque
         }
     }
 

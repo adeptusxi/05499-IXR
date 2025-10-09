@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using System;
 
 // on input action trigger: 
-// (1) resets source's parent
+// (1) resets source's parent 
 // (2) broadcasts confirm trigger
 // (3) confirms selection with evaluator
 public class ConfirmSelect : MonoBehaviour
@@ -27,12 +27,17 @@ public class ConfirmSelect : MonoBehaviour
         sourceTransform = evaluator.GetSourceTransform();
         initialSourceParent = transform.parent;
     }
-    
-    void ConfirmSelection(InputAction.CallbackContext context)
+
+    public void ConfirmSelection()
     {
         sourceTransform = evaluator.GetSourceTransform();
         sourceTransform.SetParent(initialSourceParent);
         OnConfirmTrigger?.Invoke();
         evaluator.ConfirmSelection(); 
+    }
+    
+    public void ConfirmSelection(InputAction.CallbackContext context)
+    {
+        ConfirmSelection();
     }
 }

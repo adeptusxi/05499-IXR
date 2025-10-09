@@ -5,33 +5,37 @@ using UnityEngine.InputSystem;
 // options for how to combine two joysticks (combine linearly for camera forward/backward, or use one to move up/down) 
 // option to translate source object by parenting it to the user 
 // assumes confirmScript will handle reparenting in OnConfirmTrigger
-public class CameraDirectionJoystickTranslate : MonoBehaviour
+public class CameraDirectionJoystickTranslate : MonoBehaviour, ITransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
-    [SerializeField] private ConfirmSelect confirmScript;
-
-    [SerializeField] private bool moveSource; // whether to translate object when user moves 
-    [SerializeField] private JoystickType joystickType = JoystickType.LeftVertical;
+    [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private bool activateOnAwake = false;
+    [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private ConfirmSelect confirmScript;
     
     [Header("User")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform userRoot;
-    [SerializeField] private float userScaleMultiplier = 1f;
 
     [Header("Input")]
     [SerializeField] private InputActionReference leftJoystick;
     [SerializeField] private InputActionReference rightJoystick;
     [SerializeField] private float joystickDrift = 0.01f; // max joystick input value to ignore 
+    
+    [Header("Settings")]
+    [SerializeField] private bool moveSource; // whether to translate object when user moves 
+    [SerializeField] private float userScaleMultiplier = 1f;
+    [SerializeField] private JoystickType joystickMode = JoystickType.LeftVertical;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float verticalMoveSpeed = 2.5f; // for LeftVertical/RightVertical modes 
     [SerializeField] private Vector3 viewOffset = new(0, 0, 1); // move user so that cube is here relative to camera 
 
+    private bool isActivated = false;
+    
     private Transform sourceTransform;
+    
     private Transform initialSourceParent;
     private Vector3 originalUserPosition;
     private Quaternion originalCameraRotation;
     private Vector3 originalUserScale;
-    private bool isActivated = false;
 
     public enum JoystickType
     {
@@ -42,10 +46,23 @@ public class CameraDirectionJoystickTranslate : MonoBehaviour
 
     private void Awake()
     {
-        evaluator.onTrialStarted += ActivateTranslation;
-        confirmScript.OnConfirmTrigger += DeactivateTranslation;
+        if (activateOnAwake)
+        {
+            evaluator.onTrialStarted += ActivateTranslation;
+            confirmScript.OnConfirmTrigger += DeactivateTranslation;
+        }
         
         initialSourceParent = evaluator.GetSourceTransform().parent;
+    }
+
+    public void StartTransformMode()
+    {
+        ActivateTranslation();
+    }
+    
+    public void StopTransformMode()
+    {
+        DeactivateTranslation();
     }
     
     private void Update()
@@ -63,11 +80,11 @@ public class CameraDirectionJoystickTranslate : MonoBehaviour
             rightJoystickInput = rightJoystick.action.ReadValue<Vector2>();
         
         // special behavior for applicable modes 
-        if (joystickType == JoystickType.LeftVertical)
+        if (joystickMode == JoystickType.LeftVertical)
         {
             leftJoystickInput.x = 0;
             joystickVerticalInput = leftJoystickInput.y;
-        } else if (joystickType == JoystickType.RightVertical)
+        } else if (joystickMode == JoystickType.RightVertical)
         {
             rightJoystickInput.x = 0;
             joystickVerticalInput =  rightJoystickInput.y;
