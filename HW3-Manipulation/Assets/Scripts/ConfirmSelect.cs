@@ -30,6 +30,8 @@ public class ConfirmSelect : MonoBehaviour
 
     public void ConfirmSelection()
     {
+        if (!evaluator.InProgress) return;
+        
         sourceTransform = evaluator.GetSourceTransform();
         sourceTransform.SetParent(initialSourceParent);
         OnConfirmTrigger?.Invoke();

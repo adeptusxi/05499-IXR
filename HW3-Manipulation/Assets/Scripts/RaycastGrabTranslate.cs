@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class RaycastGrabTranslate : MonoBehaviour, ITransformMode
+// raycast grabbing: if ray hits something, attaches it to the ray for as long as grip press is activated 
+public class RaycastGrabTranslate : TransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
     [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private bool activateOnAwake = false;
@@ -12,7 +13,7 @@ public class RaycastGrabTranslate : MonoBehaviour, ITransformMode
     [SerializeField] private Transform userRoot;
     
     [Header("Input")]
-    [SerializeField] private InputActionReference toggleViewTrigger;
+    [SerializeField] private InputActionReference[] toggleViewTriggers;
     [SerializeField] private InputActionReference gripPress;
     
     [Header("Raycast")]
@@ -50,9 +51,12 @@ public class RaycastGrabTranslate : MonoBehaviour, ITransformMode
         {
             evaluator.onTrialStarted += ActivateTranslate;
             confirmScript.OnConfirmTrigger += DeactivateTranslate;
-            toggleViewTrigger.action.performed += ToggleView;
             gripPress.action.performed += TryGrabCube;
             gripPress.action.canceled += ReleaseGrab;
+            foreach (InputActionReference trigger in toggleViewTriggers)
+            {
+                trigger.action.performed += ToggleView;
+            }
         }
         
         rayRenderer.positionCount = 2;
@@ -61,9 +65,12 @@ public class RaycastGrabTranslate : MonoBehaviour, ITransformMode
         sourceTransform = evaluator.GetSourceTransform();
     }
 
-    public void StartTransformMode()
+    public override void StartTransformMode()
     {
-        toggleViewTrigger.action.performed += ToggleView;
+        foreach (InputActionReference trigger in toggleViewTriggers)
+        {
+            trigger.action.performed += ToggleView;
+        }        
         gripPress.action.performed += TryGrabCube;
         gripPress.action.canceled += ReleaseGrab;
 
@@ -71,15 +78,21 @@ public class RaycastGrabTranslate : MonoBehaviour, ITransformMode
         ActivateTranslate();
     }
 
-    public void StopTransformMode()
+    public override void StopTransformMode()
     {
-        toggleViewTrigger.action.performed -= ToggleView;
+        foreach (InputActionReference trigger in toggleViewTriggers)
+        {
+            trigger.action.performed -= ToggleView;
+        }        
         gripPress.action.performed -= TryGrabCube;
         gripPress.action.canceled -= ReleaseGrab;
         
         rayRenderer.enabled = false;
         DeactivateTranslate();
     }
+
+    public override string ModeInstructions() =>
+        "Rough Translate:\nGrip press to grab cube with your ray.\nDrop it roughly at the target cube.\nTrigger press to cycle through views.";
 
     private void ActivateTranslate()
     {

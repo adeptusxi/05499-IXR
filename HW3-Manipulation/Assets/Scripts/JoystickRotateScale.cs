@@ -5,7 +5,7 @@ using System.Collections.Generic;
 // toggles through source's local axes, placing user along some offset of the current axis 
 // left joystick rotates about current axis 
 // right joystick scales on other two axes 
-public class JoystickRotateScale : MonoBehaviour, ITransformMode
+public class JoystickRotateScale : TransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
     
@@ -18,7 +18,7 @@ public class JoystickRotateScale : MonoBehaviour, ITransformMode
     [Header("Input")]
     [SerializeField] private InputActionReference rotateJoystick;
     [SerializeField] private InputActionReference scaleJoystick;
-    [SerializeField] private InputActionReference toggleAxesTrigger;
+    [SerializeField] private InputActionReference[] toggleAxesTriggers;
 
     [Header("Settings")] 
     [SerializeField] private float viewOffset = 2f; // for each axis, move user so that cube CENTER is this far from camera
@@ -56,21 +56,33 @@ public class JoystickRotateScale : MonoBehaviour, ITransformMode
         {
             evaluator.onTrialStarted += ActivateRotateScale;
             confirmScript.OnConfirmTrigger += DeactivateRotateScale;
-            toggleAxesTrigger.action.performed += CycleAxis;
+            foreach (InputActionReference trigger in toggleAxesTriggers)
+            {
+                trigger.action.performed += CycleAxis;
+            }
         }
     }
 
-    public void StartTransformMode()
+    public override void StartTransformMode()
     {
         ActivateRotateScale();
-        toggleAxesTrigger.action.performed += CycleAxis;
+        foreach (InputActionReference trigger in toggleAxesTriggers)
+        {
+            trigger.action.performed += CycleAxis;
+        }
     }
     
-    public void StopTransformMode()
+    public override void StopTransformMode()
     {
-        toggleAxesTrigger.action.performed -= CycleAxis;
+        foreach (InputActionReference trigger in toggleAxesTriggers)
+        {
+            trigger.action.performed -= CycleAxis;
+        }
         DeactivateRotateScale();
     }
+
+    public override string ModeInstructions() =>
+        "Fine Tune Rotate/Scale:\nRight joystick scales the face you're looking at.\nLeft joystick rotates that face.\nTrigger press to cycle through axes.";
 
     private void ActivateRotateScale()
     {

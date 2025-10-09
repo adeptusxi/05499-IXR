@@ -4,12 +4,14 @@
 /HW2-Selection/Obj/
 /HW2-Selection/Builds/
 /HW2-Selection/Logs/
+/HW2-Selection/.utmp/
 
 /HW3-Manipulation/Library/
-/HW3-Manipulationn/Temp/
+/HW3-Manipulation/Temp/
 /HW3-Manipulation/Obj/
 /HW3-Manipulation/Builds/
 /HW3-Manipulation/Logs/
+/HW3-Manipulation/.utmp/
 
 # Ignore crash reports, auto-generated files
 /HW2-Selection/MemoryCaptures/

@@ -45,6 +45,7 @@ public class TransformationEvaluator : MonoBehaviour
     bool inProgress;
 
     public event Action onTrialStarted; // added: event that a single trial started (one pair of cubes) 
+    public bool InProgress => inProgress; // added 
 
     public Transform GetSourceTransform()
     {

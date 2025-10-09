@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 // options for how to combine two joysticks (combine linearly for camera forward/backward, or use one to move up/down) 
 // option to translate source object by parenting it to the user 
 // assumes confirmScript will handle reparenting in OnConfirmTrigger
-public class CameraDirectionJoystickTranslate : MonoBehaviour, ITransformMode
+public class CameraDirectionJoystickTranslate : TransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
     [Tooltip("For standalone use, without a TransformModeManager")][SerializeField] private bool activateOnAwake = false;
@@ -36,7 +36,7 @@ public class CameraDirectionJoystickTranslate : MonoBehaviour, ITransformMode
     private Vector3 originalUserPosition;
     private Quaternion originalCameraRotation;
     private Vector3 originalUserScale;
-
+    
     public enum JoystickType
     {
         BothCamerDir, // both joysticks' x/y values move user sideways/forwards along camera direction 
@@ -55,14 +55,36 @@ public class CameraDirectionJoystickTranslate : MonoBehaviour, ITransformMode
         initialSourceParent = evaluator.GetSourceTransform().parent;
     }
 
-    public void StartTransformMode()
+    public override void StartTransformMode()
     {
         ActivateTranslation();
     }
     
-    public void StopTransformMode()
+    public override void StopTransformMode()
     {
         DeactivateTranslation();
+    }
+
+    public override string ModeInstructions()
+    {
+        string str = "Translate:\nUse joysticks to move around. ";
+        switch (joystickMode)
+        {
+            case JoystickType.BothCamerDir:
+                str += "\nForward is where you are looking." 
+                       + "\nBoth joysticks together move faster.";
+                break;
+            case JoystickType.LeftVertical:
+                str += "\nRight joystick for forward/sideways." 
+                       + "\nLeft joystick for up/down.";
+                break;
+            case JoystickType.RightVertical:
+                str += "\nLeft joystick for forward/sideways." 
+                       + "\nRight joystick for up/down.";
+                break;
+        }
+
+        return str;
     }
     
     private void Update()

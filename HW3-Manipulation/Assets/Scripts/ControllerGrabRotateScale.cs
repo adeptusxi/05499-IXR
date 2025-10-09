@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 // grip press grabbing for rotation and scale 
 // assumes confirmScript will handle reparenting in OnConfirmTrigger
-public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
+public class ControllerGrabRotateScale : TransformMode
 {
     [SerializeField] private TransformationEvaluator evaluator;
     
@@ -64,7 +64,7 @@ public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
         }
     }
     
-    public void StartTransformMode()
+    public override void StartTransformMode()
     {
         leftGrip.action.performed += TryGrabLeft;
         rightGrip.action.performed += TryGrabRight;
@@ -75,7 +75,7 @@ public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
         ActivateRotateScale();
     }
 
-    public void StopTransformMode()
+    public override void StopTransformMode()
     {
         leftGrip.action.performed -= TryGrabLeft;
         rightGrip.action.performed -= TryGrabRight;
@@ -85,6 +85,9 @@ public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
 
         DeactivateRotateScale();
     }
+
+    public override string ModeInstructions() =>
+        "Rough Rotate/Scale:\nGrip press on the cube to grab it.\nOrient its axes roughly.";
 
     private void ActivateRotateScale()
     {
@@ -98,8 +101,7 @@ public class ControllerGrabRotateScale : MonoBehaviour, ITransformMode
 
             userRoot.localScale *= userScaleMultiplier;
             Vector3 rootCameraOffset = cameraTransform.localPosition;
-            userRoot.position = sourceTransform.position - Vector3.forward * viewOffset - rootCameraOffset;
-            //userRoot.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            userRoot.position = sourceTransform.position + Vector3.forward * viewOffset - rootCameraOffset;
             cameraTransform.LookAt(sourceTransform);
         }
     }
