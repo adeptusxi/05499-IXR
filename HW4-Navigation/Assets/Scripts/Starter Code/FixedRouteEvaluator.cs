@@ -26,7 +26,7 @@ public class FixedRouteEvaluator : MonoBehaviour
     int trialProgress;
     float startTime;
     bool inProgress;
-    
+    public bool InProgress => inProgress; // added: for navigation scripts to know whether to activate 
 
     void Start()
     {

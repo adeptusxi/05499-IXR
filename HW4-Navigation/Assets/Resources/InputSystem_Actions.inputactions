@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "InputSystem_Actions",
     "maps": [
         {
@@ -996,6 +997,15 @@
             "id": "8847b01d-a27b-4e35-8580-87ad2afc8c8a",
             "actions": [
                 {
+                    "name": "PrimaryButton",
+                    "type": "Button",
+                    "id": "4caf7902-e7a1-41e5-bc9e-d97d195125e0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "PrimaryLeft",
                     "type": "Button",
                     "id": "40973602-5f17-4b5a-be51-ee9c276e10f9",
@@ -1008,6 +1018,15 @@
                     "name": "PrimaryRight",
                     "type": "Button",
                     "id": "59d7b959-f8ba-4600-bef4-8105a0b7ae60",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryButton",
+                    "type": "Button",
+                    "id": "ce36f953-be3c-4a24-9961-82d0f769ce15",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1032,6 +1051,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Trigger",
+                    "type": "Button",
+                    "id": "1484c100-9a00-4b21-8f41-b2c24910414a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "TriggerLeft",
                     "type": "Button",
                     "id": "ce49a76d-f534-452f-af4d-f5647825b49d",
@@ -1044,6 +1072,33 @@
                     "name": "TriggerRight",
                     "type": "Button",
                     "id": "24fe034e-a5ef-40fd-b51b-f302b75dcf30",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "JoystickLeft",
+                    "type": "Value",
+                    "id": "7e3cfaa6-26a4-4546-b1c5-7d47a7fba0c6",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "JoystickRight",
+                    "type": "Value",
+                    "id": "50ff1e85-5e19-4956-905a-26b479b2c7c9",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Grip",
+                    "type": "Button",
+                    "id": "14184792-0391-418a-9fa8-de0311c93d82",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1114,6 +1169,72 @@
                     "processors": "",
                     "groups": "",
                     "action": "TriggerRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2e1258ac-14af-4df8-9d0a-63166fb9a0ad",
+                    "path": "<XRController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "JoystickLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "074d2759-2b8f-4b9e-bf19-f4da6363cc5d",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "JoystickRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9acf7a4e-e9d2-4985-a698-c15a5fa949cf",
+                    "path": "<XRController>/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "be41e287-4604-4aa9-9a82-be2c962dc6ac",
+                    "path": "<XRController>/{SecondaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0f6cf46f-a008-4b1b-ad85-024988490c68",
+                    "path": "<XRController>/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Trigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c5009976-214b-4310-aab9-3b0e6b2d4fc5",
+                    "path": "<XRController>/{GripButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

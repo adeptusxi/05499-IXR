@@ -46,12 +46,12 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.2.7f2/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/RandomRouteEvaluator.cs" />
-    <Compile Include="Assets/AnchorController.cs" />
-    <Compile Include="Assets/SampleNavigationController.cs" />
-    <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
-    <Compile Include="Assets/FixedRouteEvaluator.cs" />
-    <Compile Include="Assets/ArrowController.cs" />
+    <Compile Include="Assets/Scripts/Starter Code/RandomRouteEvaluator.cs" />
+    <Compile Include="Assets/Scripts/Starter Code/FixedRouteEvaluator.cs" />
+    <Compile Include="Assets/Scripts/Starter Code/AnchorController.cs" />
+    <Compile Include="Assets/Scripts/Starter Code/ArrowController.cs" />
+    <Compile Include="Assets/Scripts/Starter Code/SampleNavigationController.cs" />
+    <Compile Include="Assets/Scripts/JoystickNavigation.cs" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile-2-Pass.shader" />
