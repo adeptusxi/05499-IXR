@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 using Text = TMPro.TMP_Text;
 using Toggle = UnityEngine.UI.Toggle;
@@ -24,6 +25,8 @@ public class RandomRouteEvaluator : MonoBehaviour
     float startTime;
     bool inProgress;
     public bool InProgress => inProgress; // added: for navigation scripts to know whether to activate 
+    public Action OnTrialStart; // added: for navigation scripts to enable/disable their own UI 
+    public Action OnTrialEnd; // added
 
     void Start()
     {
@@ -59,7 +62,7 @@ public class RandomRouteEvaluator : MonoBehaviour
 
             while (seen.Contains(curr))
             {
-                curr = Random.Range(0, anchorOrigin.childCount);
+                curr = UnityEngine.Random.Range(0, anchorOrigin.childCount);
             }
             routeWaypoints[i] = anchorOrigin.GetChild(curr);
             seen.Add(curr);
@@ -72,6 +75,8 @@ public class RandomRouteEvaluator : MonoBehaviour
         startTime = Time.time;
         routeWaypoints[trialProgress].gameObject.SetActive(true);
         inProgress = true;
+        
+        OnTrialStart?.Invoke();
     }
 
     public void ProgressTrial()
@@ -115,6 +120,8 @@ public class RandomRouteEvaluator : MonoBehaviour
 
 
         inProgress = false;
+        
+        OnTrialEnd?.Invoke();
     }
 
 

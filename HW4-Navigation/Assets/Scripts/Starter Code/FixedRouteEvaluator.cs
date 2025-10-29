@@ -27,6 +27,8 @@ public class FixedRouteEvaluator : MonoBehaviour
     float startTime;
     bool inProgress;
     public bool InProgress => inProgress; // added: for navigation scripts to know whether to activate 
+    public Action OnTrialStart; // added: for navigation scripts to enable/disable their own UI 
+    public Action OnTrialEnd; // added
 
     void Start()
     {
@@ -68,6 +70,8 @@ public class FixedRouteEvaluator : MonoBehaviour
         startTime = Time.time;
         routeWaypoints[trialProgress].gameObject.SetActive(true);
         inProgress = true;
+        
+        OnTrialStart?.Invoke();
     }
 
     public void ProgressTrial()
@@ -111,5 +115,7 @@ public class FixedRouteEvaluator : MonoBehaviour
 
 
         inProgress = false;
+        
+        OnTrialEnd?.Invoke();
     }
 }
