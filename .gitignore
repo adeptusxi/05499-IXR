@@ -13,6 +13,13 @@
 /HW3-Manipulation/Logs/
 /HW3-Manipulation/.utmp/
 
+/HW4-Navigation/Library/
+/HW4-Navigation/Temp/
+/HW4-Navigation/Obj/
+/HW4-Navigation/Builds/
+/HW4-Navigation/Logs/
+/HW4-Navigation/.utmp/
+
 # Ignore crash reports, auto-generated files
 /HW2-Selection/MemoryCaptures/
 /HW2-Selection/*.csproj
