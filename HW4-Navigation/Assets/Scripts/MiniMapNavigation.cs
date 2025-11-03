@@ -1,62 +1,50 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
+using System.Collections.Generic;
 
 public class MiniMapNavigation : MonoBehaviour
-{
-    private enum Mode
+{    
+    [Serializable]
+    public class MapMarker
     {
-        MoveUser, // directly move user 
-        MoveObject // move objectToMove, and let user teleport to it 
-    };
+        public enum TrackedObject
+        {
+            User, 
+            Target, 
+            Other // use worldObject 
+        }
 
+        public TrackedObject trackedObject;
+        public Transform worldObject; // object being tracked if trackedObject = Other 
+        public RectTransform mapIcon; // icon on map to indicate object 
+        public bool useRotation = false; // if true, map icon faces corresponding direction as worldObject
+        public float rotationOffsetDeg; // if useRotation, how much to offset (e.g. if image is rotated already)
+    }
+    
     [SerializeField] private RandomRouteEvaluator evaluator;
     
     [Header("User")] 
     [SerializeField] private Transform objectToMove; // user rig or preview object
     [SerializeField] private Transform userRig;
-    [SerializeField] private Transform camera;
+    [SerializeField] private Transform userCamera;
 
     [Header("Map")] 
     [SerializeField] private GameObject mapObj;
+    [SerializeField] private RectTransform mapRect;
+    [SerializeField] private List<MapMarker> markers;
+    [SerializeField] private Transform worldMin; // world-space position of top left of map
+    [SerializeField] private Transform worldMax; // world-space position of bottom right of map
 
-    [Header("Input")]
-    [SerializeField] private InputActionReference leftJoystick;
-    [SerializeField] private InputActionReference rightJoystick;
-    [SerializeField] private InputActionReference[] teleportTriggers; // if objectToMove isn't user rig, these
-                                                                      // triggers teleport userRig to objectToMove on the horizontal plane
-    [SerializeField] private InputActionReference[] resetTriggers; // move objectToMove back in front of user 
-
+    [Header("Teleportation")]
+    [SerializeField] private LayerMask landableMask; // layers to land on 
+    [SerializeField] private float raycastDistance = 100f; // how high above y=0 to raycast for landable ground
+    
     [Header("Settings")] 
-    [SerializeField] private Mode mode = Mode.MoveUser;
-    [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private float moveSpeed = 2.5f;
-    [SerializeField] private float collisionBuffer = 0.2f; // padding on obstacles for collision detection
-    [SerializeField] private float previewOffset = 0.2f; // default offset of objectToMove in front of user 
     [SerializeField] private float mapOffset = 0.2f; // how far in front of user to put map 
     
     private void Start()
     {
-        if (mode == Mode.MoveObject)
-        {
-            foreach (var trigger in teleportTriggers)
-            {
-                trigger.action.performed += TeleportUser;
-            }
-
-            foreach (var trigger in resetTriggers)
-            {
-                trigger.action.performed += ResetObject;
-            }
-            
-            Vector3 userForward = camera.forward;
-            userForward.y = 0;
-            userForward.Normalize();
-        
-            var objPos = userRig.position + userForward * previewOffset;
-            objPos.y = objectToMove.position.y;
-            objectToMove.position = objPos;
-        }
-        
         mapObj.SetActive(false);
         evaluator.OnTrialStart += () => mapObj.SetActive(true);
         evaluator.OnTrialEnd += () => mapObj.SetActive(false);
@@ -65,42 +53,49 @@ public class MiniMapNavigation : MonoBehaviour
     private void Update()
     {
         if (!evaluator.InProgress) return;
-        
-        //mapObj.transform.position = camera.transform.position + camera.transform.forward * mapOffset;
-        
-        Vector2 leftValue = leftJoystick.action.ReadValue<Vector2>();
-        Vector2 rightValue = rightJoystick.action.ReadValue<Vector2>();
 
-        // combine both joysticks  
-        Vector2 combined = leftValue + rightValue;
-
-        if (combined.sqrMagnitude > 0.01f) // ignore joystick drift 
+        foreach (var marker in markers)
         {
-            // get direction relative to camera, restricting movement to horizontal plane
-            Vector3 forward = camera.forward;
-            Vector3 right = camera.right;
-            forward.y = 0;
-            right.y = 0;
-            forward.Normalize();
-            right.Normalize();
-
-            Vector3 moveDirection = forward * combined.y + right * combined.x;
-            Vector3 moveStep = moveDirection * (moveSpeed * Time.deltaTime);
-
-            TryMove(moveStep);
+            UpdateMapMarker(marker);
         }
     }
 
-    private void TryMove(Vector3 vec)
+    private void UpdateMapMarker(MapMarker marker)
     {
-        // prevent moving through obstacles 
-        if (Physics.Raycast(objectToMove.position, vec.normalized, out RaycastHit hit, vec.magnitude + collisionBuffer, obstacleLayer))
+        Transform obj;
+        switch (marker.trackedObject)
         {
-            objectToMove.position += vec.normalized * Mathf.Max(0f, hit.distance - collisionBuffer);
+            case MapMarker.TrackedObject.User:
+                obj = userCamera;
+                break;
+            case MapMarker.TrackedObject.Target:
+                obj = evaluator.ActiveWaypointTransform;
+                break;
+            default:
+                obj = marker.worldObject;
+                break;
         }
-        else
+        
+        // project object onto map UV coords 
+        Vector3 pos = obj.position;
+        float u = Mathf.InverseLerp(worldMin.transform.position.x, worldMax.transform.position.x, pos.x);
+        float v = Mathf.InverseLerp(worldMin.transform.position.z, worldMax.transform.position.z, pos.z);
+        
+        // convert to position on map 
+        Vector2 anchoredPos = new Vector2(
+            (u - 0.5f) * mapRect.rect.width,
+            (v - 0.5f) * mapRect.rect.height
+        );
+        
+        // update marker position 
+        marker.mapIcon.localPosition = anchoredPos;
+        
+        // rotate marker 
+        if (marker.useRotation)
         {
-            objectToMove.position += vec;
+            // match icon's Z rotation with object's Y rotation 
+            float worldYaw = obj.eulerAngles.y;
+            marker.mapIcon.localRotation = Quaternion.Euler(0f, 0f, -worldYaw + marker.rotationOffsetDeg);
         }
     }
 
@@ -110,17 +105,5 @@ public class MiniMapNavigation : MonoBehaviour
         var newUserPos = objectToMove.position;
         newUserPos.y = userRig.position.y;
         userRig.position = newUserPos;
-    }
-
-    private void ResetObject(InputAction.CallbackContext context)
-    {
-        if (!evaluator.InProgress) return;
-        Vector3 userForward = camera.forward;
-        userForward.y = 0;
-        userForward.Normalize();
-        
-        var newObjPos = userRig.position + userForward * previewOffset;
-        newObjPos.y = objectToMove.position.y;
-        objectToMove.position = newObjPos;
     }
 }

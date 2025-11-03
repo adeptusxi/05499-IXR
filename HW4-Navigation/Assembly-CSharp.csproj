@@ -49,6 +49,7 @@
     <Compile Include="Assets/Scripts/MiniMapNavigation.cs" />
     <Compile Include="Assets/Scripts/Starter Code/RandomRouteEvaluator.cs" />
     <Compile Include="Assets/Scripts/Starter Code/FixedRouteEvaluator.cs" />
+    <Compile Include="Assets/Scripts/SmoothFollow.cs" />
     <Compile Include="Assets/Scripts/Starter Code/AnchorController.cs" />
     <Compile Include="Assets/Scripts/Starter Code/SampleNavigationController.cs" />
     <Compile Include="Assets/Scripts/JoystickNavigation.cs" />

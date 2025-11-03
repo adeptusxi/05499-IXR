@@ -28,6 +28,8 @@ public class RandomRouteEvaluator : MonoBehaviour
     public Action OnTrialStart; // added: for navigation scripts to enable/disable their own UI 
     public Action OnTrialEnd; // added
 
+    public Transform ActiveWaypointTransform => inProgress ? routeWaypoints[trialProgress].gameObject.transform : null; // added: for map placement 
+
     void Start()
     {
         startTrialButton.onValueChanged.AddListener((b) => { StartTrial(); });

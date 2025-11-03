@@ -12,7 +12,7 @@ public class JoystickNavigation : MonoBehaviour
     [SerializeField] private RandomRouteEvaluator evaluator;
     
     [Header("User")] 
-    [SerializeField] private Transform objectToMove; // user rig or preview object
+    [SerializeField] private Transform objectToMove; // if mode = MoveObject, move objectToMove 
     [SerializeField] private Transform userRig;
     [SerializeField] private Transform camera;
 
@@ -30,10 +30,14 @@ public class JoystickNavigation : MonoBehaviour
     [SerializeField] private float collisionBuffer = 0.2f; // padding on obstacles for collision detection
     [SerializeField] private float previewOffset = 0.2f; // default offset of objectToMove in front of user 
     
+    private Transform toMove;
+    
     private void Start()
     {
         if (mode == Mode.MoveObject)
         {
+            toMove = objectToMove;
+            
             foreach (var trigger in teleportTriggers)
             {
                 trigger.action.performed += TeleportUser;
@@ -51,6 +55,10 @@ public class JoystickNavigation : MonoBehaviour
             var objPos = userRig.position + userForward * previewOffset;
             objPos.y = objectToMove.position.y;
             objectToMove.position = objPos;
+        }
+        else
+        {
+            toMove = userRig;
         }
     }
     
@@ -84,13 +92,13 @@ public class JoystickNavigation : MonoBehaviour
     private void TryMove(Vector3 vec)
     {
         // prevent moving through obstacles 
-        if (Physics.Raycast(objectToMove.position, vec.normalized, out RaycastHit hit, vec.magnitude + collisionBuffer, obstacleLayer))
+        if (Physics.Raycast(toMove.position, vec.normalized, out RaycastHit hit, vec.magnitude + collisionBuffer, obstacleLayer))
         {
-            objectToMove.position += vec.normalized * Mathf.Max(0f, hit.distance - collisionBuffer);
+            toMove.position += vec.normalized * Mathf.Max(0f, hit.distance - collisionBuffer);
         }
         else
         {
-            objectToMove.position += vec;
+            toMove.position += vec;
         }
     }
 
