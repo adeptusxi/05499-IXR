@@ -23,6 +23,7 @@ public class MiniMapNavigation : MonoBehaviour
     }
     
     [SerializeField] private RandomRouteEvaluator evaluator;
+    [SerializeField] private JoystickNavigation joystickNav;
     
     [Header("User")] 
     [SerializeField] private Transform objectToMove; // user rig or preview object
@@ -37,17 +38,30 @@ public class MiniMapNavigation : MonoBehaviour
     [SerializeField] private Transform worldMax; // world-space position of bottom right of map
 
     [Header("Teleportation")]
+    [SerializeField] private InputActionReference[] teleportTriggers;
     [SerializeField] private LayerMask landableMask; // layers to land on 
     [SerializeField] private float raycastDistance = 100f; // how high above y=0 to raycast for landable ground
+    [SerializeField] private Transform rayOrigin; 
+    [SerializeField] private LineRenderer rayRenderer;
+    [SerializeField] private RectTransform raycastIcon;
     
     [Header("Settings")] 
     [SerializeField] private float mapOffset = 0.2f; // how far in front of user to put map 
+
+    private bool isHittingMap = false;
+    private Vector3 hitMapPoint;
     
     private void Start()
     {
         mapObj.SetActive(false);
+        raycastIcon.gameObject.SetActive(false);
         evaluator.OnTrialStart += () => mapObj.SetActive(true);
         evaluator.OnTrialEnd += () => mapObj.SetActive(false);
+        
+        foreach (var trigger in teleportTriggers)
+        {
+            trigger.action.performed += TryTeleport;
+        }
     }
     
     private void Update()
@@ -58,6 +72,8 @@ public class MiniMapNavigation : MonoBehaviour
         {
             UpdateMapMarker(marker);
         }
+
+        MapRaycast();
     }
 
     private void UpdateMapMarker(MapMarker marker)
@@ -99,11 +115,67 @@ public class MiniMapNavigation : MonoBehaviour
         }
     }
 
-    private void TeleportUser(InputAction.CallbackContext context)
+    private void MapRaycast()
     {
-        if (!evaluator.InProgress) return;
-        var newUserPos = objectToMove.position;
-        newUserPos.y = userRig.position.y;
-        userRig.position = newUserPos;
+        Ray ray = new Ray(rayOrigin.position, rayOrigin.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 50f))
+        {
+            if (hit.collider.gameObject == mapObj)
+            {
+                // convert 3D hit point to UV coordinates on map rect 
+                Vector3 localPoint = mapRect.InverseTransformPoint(hit.point);
+                Vector2 uv = new Vector2(
+                    (localPoint.x + mapRect.rect.width * 0.5f) / mapRect.rect.width,
+                    (localPoint.y + mapRect.rect.height * 0.5f) / mapRect.rect.height
+                );
+                
+                isHittingMap = true;
+                hitMapPoint = UVToWorld(uv);
+                
+                if (rayRenderer != null)
+                {
+                    rayRenderer.enabled = true;
+                    rayRenderer.SetPosition(0, ray.origin);
+                    rayRenderer.SetPosition(1, hit.point);
+                    raycastIcon.transform.position = hit.point;
+                    raycastIcon.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                rayRenderer.enabled = false;
+                isHittingMap = false;
+                raycastIcon.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            rayRenderer.enabled = false;
+            isHittingMap = false;
+            raycastIcon.gameObject.SetActive(false);
+        }
+    }
+
+    private void TryTeleport(InputAction.CallbackContext context)
+    {
+        if (!isHittingMap) return;
+        
+        Vector3 teleportRayOrigin = hitMapPoint + Vector3.up * raycastDistance;
+        if (Physics.Raycast(teleportRayOrigin, Vector3.down, out RaycastHit hit, raycastDistance * 2f, landableMask))
+        {
+            Vector3 destination = hit.point;
+            userRig.position = destination;
+            joystickNav.ResetObject();
+        }
+    }
+    
+    // convert uv point to world coordinate with corresponding x and z (y = 0)
+    private Vector3 UVToWorld(Vector2 mapUV)
+    {
+        float worldX = Mathf.Lerp(worldMin.position.x, worldMax.position.x, mapUV.x);
+        float worldZ = Mathf.Lerp(worldMin.position.z, worldMax.position.z, mapUV.y);
+        float worldY = 0f;
+        return new Vector3(worldX, worldY, worldZ);
     }
 }

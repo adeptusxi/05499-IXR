@@ -17,8 +17,8 @@ public class JoystickNavigation : MonoBehaviour
     [SerializeField] private Transform camera;
 
     [Header("Input")]
-    [SerializeField] private InputActionReference leftJoystick;
-    [SerializeField] private InputActionReference rightJoystick;
+    [SerializeField] private InputActionReference vertMvmtJoystick; // y value mapes to y movement 
+    [SerializeField] private InputActionReference horizMvmtJoystick; // x/y values map to x/z movement 
     [SerializeField] private InputActionReference[] teleportTriggers; // if objectToMove isn't user rig, these
                                                                       // triggers teleport userRig to objectToMove on the horizontal plane
     [SerializeField] private InputActionReference[] resetTriggers; // move objectToMove back in front of user 
@@ -66,13 +66,14 @@ public class JoystickNavigation : MonoBehaviour
     {
         if (!evaluator.InProgress) return;
         
-        Vector2 leftValue = leftJoystick.action.ReadValue<Vector2>();
-        Vector2 rightValue = rightJoystick.action.ReadValue<Vector2>();
+        Vector2 vertValue = vertMvmtJoystick.action.ReadValue<Vector2>();
+        Vector2 horizValue = horizMvmtJoystick.action.ReadValue<Vector2>();
+        
+        // ignore joystick drift 
+        if (vertValue.sqrMagnitude <= 0.01f) vertValue = Vector2.zero;
+        if (horizValue.sqrMagnitude <= 0.01f) horizValue = Vector2.zero;
 
-        // combine both joysticks  
-        Vector2 combined = leftValue + rightValue;
-
-        if (combined.sqrMagnitude > 0.01f) // ignore joystick drift 
+        if (vertValue.sqrMagnitude > 0.01f || horizValue.sqrMagnitude > 0.01f)
         {
             // get direction relative to camera, restricting movement to horizontal plane
             Vector3 forward = camera.forward;
@@ -82,7 +83,7 @@ public class JoystickNavigation : MonoBehaviour
             forward.Normalize();
             right.Normalize();
 
-            Vector3 moveDirection = forward * combined.y + right * combined.x;
+            Vector3 moveDirection = forward * horizValue.y + right * horizValue.x + Vector3.up * vertValue.y;
             Vector3 moveStep = moveDirection * (moveSpeed * Time.deltaTime);
 
             TryMove(moveStep);
@@ -110,7 +111,7 @@ public class JoystickNavigation : MonoBehaviour
         userRig.position = newUserPos;
     }
 
-    private void ResetObject(InputAction.CallbackContext context)
+    public void ResetObject()
     {
         if (!evaluator.InProgress) return;
         Vector3 userForward = camera.forward;
@@ -118,7 +119,11 @@ public class JoystickNavigation : MonoBehaviour
         userForward.Normalize();
         
         var newObjPos = userRig.position + userForward * previewOffset;
-        newObjPos.y = objectToMove.position.y;
         objectToMove.position = newObjPos;
+    }
+    
+    public void ResetObject(InputAction.CallbackContext context)
+    {
+        ResetObject();
     }
 }
