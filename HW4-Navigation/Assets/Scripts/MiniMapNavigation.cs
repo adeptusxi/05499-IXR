@@ -68,6 +68,8 @@ public class MiniMapNavigation : MonoBehaviour
         {
             trigger.action.performed += ToggleMap;
         }
+        
+        evaluator.OnTrialProgress += () => mapObj.SetActive(true);
     }
     
     private void Update()

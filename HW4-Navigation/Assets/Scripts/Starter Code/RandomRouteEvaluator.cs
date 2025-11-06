@@ -27,6 +27,7 @@ public class RandomRouteEvaluator : MonoBehaviour
     public bool InProgress => inProgress; // added: for navigation scripts to know whether to activate 
     public Action OnTrialStart; // added: for navigation scripts to enable/disable their own UI 
     public Action OnTrialEnd; // added
+    public Action OnTrialProgress; // added 
 
     public Transform ActiveWaypointTransform => inProgress ? routeWaypoints[trialProgress].gameObject.transform : null; // added: for map placement 
 
@@ -99,6 +100,7 @@ public class RandomRouteEvaluator : MonoBehaviour
         else
         {
             routeWaypoints[trialProgress].gameObject.SetActive(true);
+            OnTrialProgress?.Invoke();
         }
 
 
