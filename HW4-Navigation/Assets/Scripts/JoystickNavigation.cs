@@ -29,6 +29,8 @@ public class JoystickNavigation : MonoBehaviour
     [SerializeField] private float moveSpeed = 2.5f;
     [SerializeField] private float collisionBuffer = 0.2f; // padding on obstacles for collision detection
     [SerializeField] private float previewOffset = 0.2f; // default offset of objectToMove in front of user 
+
+    public bool activated = true; 
     
     private Transform toMove;
     
@@ -105,10 +107,8 @@ public class JoystickNavigation : MonoBehaviour
 
     private void TeleportUser(InputAction.CallbackContext context)
     {
-        if (!evaluator.InProgress) return;
-        var newUserPos = objectToMove.position;
-        newUserPos.y = userRig.position.y;
-        userRig.position = newUserPos;
+        if (!evaluator.InProgress || !activated) return;
+        userRig.position = objectToMove.position;
     }
 
     public void ResetObject()
@@ -118,7 +118,7 @@ public class JoystickNavigation : MonoBehaviour
         userForward.y = 0;
         userForward.Normalize();
         
-        var newObjPos = userRig.position + userForward * previewOffset;
+        var newObjPos = userRig.position + userForward * previewOffset + Vector3.up * objectToMove.localScale.y / 2;
         objectToMove.position = newObjPos;
     }
     

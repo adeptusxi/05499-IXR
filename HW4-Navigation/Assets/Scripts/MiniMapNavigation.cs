@@ -34,6 +34,7 @@ public class MiniMapNavigation : MonoBehaviour
     [SerializeField] private GameObject mapObj;
     [SerializeField] private RectTransform mapRect;
     [SerializeField] private List<MapMarker> markers;
+    [SerializeField] private InputActionReference[] toggleMapTriggers;
     [SerializeField] private Transform worldMin; // world-space position of top left of map
     [SerializeField] private Transform worldMax; // world-space position of bottom right of map
 
@@ -61,6 +62,11 @@ public class MiniMapNavigation : MonoBehaviour
         foreach (var trigger in teleportTriggers)
         {
             trigger.action.performed += TryTeleport;
+        }
+
+        foreach (var trigger in toggleMapTriggers)
+        {
+            trigger.action.performed += ToggleMap;
         }
     }
     
@@ -131,6 +137,7 @@ public class MiniMapNavigation : MonoBehaviour
                 );
                 
                 isHittingMap = true;
+                joystickNav.activated = false;
                 hitMapPoint = UVToWorld(uv);
                 
                 if (rayRenderer != null)
@@ -146,6 +153,7 @@ public class MiniMapNavigation : MonoBehaviour
             {
                 rayRenderer.enabled = false;
                 isHittingMap = false;
+                joystickNav.activated = true;
                 raycastIcon.gameObject.SetActive(false);
             }
         }
@@ -153,6 +161,7 @@ public class MiniMapNavigation : MonoBehaviour
         {
             rayRenderer.enabled = false;
             isHittingMap = false;
+            joystickNav.activated = true;
             raycastIcon.gameObject.SetActive(false);
         }
     }
@@ -168,6 +177,11 @@ public class MiniMapNavigation : MonoBehaviour
             userRig.position = destination;
             joystickNav.ResetObject();
         }
+    }
+
+    private void ToggleMap(InputAction.CallbackContext context)
+    {
+        mapObj.SetActive(!mapObj.activeSelf);
     }
     
     // convert uv point to world coordinate with corresponding x and z (y = 0)

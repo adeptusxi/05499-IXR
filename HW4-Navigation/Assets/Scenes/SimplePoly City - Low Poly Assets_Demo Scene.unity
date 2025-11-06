@@ -9555,7 +9555,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &250317344
 Transform:
   m_ObjectHideFlags: 0
@@ -9565,7 +9565,7 @@ Transform:
   m_GameObject: {fileID: 250317343}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.35600278, y: 0.33199996, z: 0.40000066}
+  m_LocalPosition: {x: 0.369, y: 0.261, z: 0.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -45562,6 +45562,9 @@ MonoBehaviour:
     mapIcon: {fileID: 1996278894}
     useRotation: 0
     rotationOffsetDeg: 0
+  toggleMapTriggers:
+  - {fileID: 4310176683830547345, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: 3138258779343600574, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   worldMin: {fileID: 1023341245}
   worldMax: {fileID: 1923050522}
   teleportTriggers:
@@ -45610,11 +45613,9 @@ MonoBehaviour:
   vertMvmtJoystick: {fileID: -3819185010927390572, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   horizMvmtJoystick: {fileID: -3198354755059881554, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   teleportTriggers:
-  - {fileID: 4548903193637677240, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  - {fileID: 526723933422905599, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: 1538774745766480590, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   resetTriggers:
-  - {fileID: 7328352749979127517, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  - {fileID: 614686848545220072, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: 1726991196492951429, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   mode: 1
   obstacleLayer:
     serializedVersion: 2
@@ -45622,6 +45623,7 @@ MonoBehaviour:
   moveSpeed: 6
   collisionBuffer: 0.2
   previewOffset: 0.2
+  activated: 1
 --- !u!120 &1163528215
 LineRenderer:
   serializedVersion: 2
@@ -78490,21 +78492,22 @@ MonoBehaviour:
   objectToMove: {fileID: 660413364}
   userRig: {fileID: 148101837}
   camera: {fileID: 1077032590}
-  vertMvmtJoystick: {fileID: 0}
-  horizMvmtJoystick: {fileID: 0}
+  vertMvmtJoystick: {fileID: -3819185010927390572, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  horizMvmtJoystick: {fileID: -3198354755059881554, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   teleportTriggers:
   - {fileID: 4310176683830547345, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   - {fileID: 3138258779343600574, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   resetTriggers:
   - {fileID: 1538774745766480590, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   - {fileID: 1726991196492951429, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  mode: 0
+  mode: 1
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 512
-  moveSpeed: 6
+  moveSpeed: 8
   collisionBuffer: 0.2
   previewOffset: 0.2
+  activated: 1
 --- !u!4 &1952125603
 Transform:
   m_ObjectHideFlags: 0
